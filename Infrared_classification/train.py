@@ -71,7 +71,7 @@ class Trainer:
         model = tf.keras.Sequential([
             tf.keras.layers.Flatten(input_shape=(self.data_shape[-3] ,self.data_shape[-2], self.data_shape[-1])),
             tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dense(len(self.labels_list))
+            tf.keras.layers.Dense(len(self.labels_list), activation="softmax")
         ])
 
         model.compile(optimizer=tf.keras.optimizers.RMSprop(),
