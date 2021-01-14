@@ -1,0 +1,1 @@
+FROM tensorflow/tensorflow:2.2.2-gpu-py3

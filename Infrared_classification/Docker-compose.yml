@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  tensorflow:
+    build: ./Docker/
+    volumes:
+      - ./:/root
+    stdin_open: true
+    tty: true 
