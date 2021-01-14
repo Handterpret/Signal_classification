@@ -19,6 +19,12 @@ Training a model is made with file :
 ```bash
 ./Infrared_classification/train.py
 ```
+For info on how to use, Please see:
+
+```
+python3 ./Infrared_classification/train.py --help
+```
+
 
 Dataset Architecture :
 ```
