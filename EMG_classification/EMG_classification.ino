@@ -36,6 +36,18 @@
 #define TopSensorInputPin A1   //sensor input pin number
 #define BottomSensorInputPin A2   //sensor input pin number
 
+struct VarEMGCount
+{
+  long integralData;
+  long integralDatap;
+  long integralDataEve;
+  bool remainFlag;
+  unsigned long timeMillis;
+  unsigned long timeBeginzero;
+  long fistNum;
+  int  TimeStandard;
+};
+
 /*
   Define the `threshold` variable as 0 to calibrate the baseline value of input sEMG signals first.
   After wiring the sEMG sensors to the Arduino board, wear the sEMG sensors. Relax your muscles for a few seconds,
@@ -51,6 +63,9 @@
 unsigned long threshold = 4000;  // threshold: Relaxed baseline values.(threshold=0:in the calibration process)
 unsigned long Raise_num = 0;      // Raise_num: The number of statistical signals
 unsigned long Lower_num = 0;      // Lower_num: The number of statistical signals
+
+VarEMGCount topSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 200};
+VarEMGCount bottomSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 200};
 
 
 EMGFilters myFilter;
@@ -92,13 +107,13 @@ void loop()
   */
   if (threshold > 0)
   {
-    if (getEMGCount(bottomEnvelope))
+    if (getEMGCount(bottomEnvelope, &bottomSensorEMGCount))
     {
       Lower_num++;
       Serial.print("Lower_num: ");
       Serial.println(Lower_num);
     }
-    if (getEMGCount(topEnvelope))
+    if (getEMGCount(topEnvelope, &topSensorEMGCount))
     {
       Raise_num++;
       Serial.print("Raise_num: ");
@@ -116,44 +131,37 @@ void loop()
    if get EMG signal,return 1;
 */
 //TODO : Delete static var and make recursive function. For now the function cannot proccess more than one censor
-int getEMGCount(int gforce_envelope)
+int getEMGCount(int gforce_envelope, VarEMGCount *sensorInfo)
 {
-  static long integralData = 0;
-  static long integralDataEve = 0;
-  static bool remainFlag = false;
-  static unsigned long timeMillis = 0;
-  static unsigned long timeBeginzero = 0;
-  static long fistNum = 0;
-  static int  TimeStandard = 200;
   /*
     The integral is processed to continuously add the signal value
     and compare the integral value of the previous sampling to determine whether the signal is continuous
    */
-  integralDataEve = integralData;
-  integralData += gforce_envelope;
+  sensorInfo->integralDataEve = sensorInfo->integralData;
+  sensorInfo->integralData += gforce_envelope;
   /*
     If the integral is constant, and it doesn't equal 0, then the time is recorded;
     If the value of the integral starts to change again, the remainflag is true, and the time record will be re-entered next time
   */
-  if ((integralDataEve == integralData) && (integralDataEve != 0))
+  if ((sensorInfo->integralDataEve == sensorInfo->integralData) && (sensorInfo->integralDataEve != 0))
   {
-    timeMillis = millis();
-    if (remainFlag)
+    sensorInfo->timeMillis = millis();
+    if (sensorInfo->remainFlag)
     {
-      timeBeginzero = timeMillis;
-      remainFlag = false;
+      sensorInfo->timeBeginzero = sensorInfo->timeMillis;
+      sensorInfo->remainFlag = false;
       return 0;
     }
     /* If the integral value exceeds 200 ms, the integral value is clear 0,return that get EMG signal */
-    if ((timeMillis - timeBeginzero) > TimeStandard)
+    if ((sensorInfo->timeMillis - sensorInfo->timeBeginzero) > sensorInfo->TimeStandard)
     {
-      integralDataEve = integralData = 0;
+      sensorInfo->integralDataEve = sensorInfo->integralData = 0;
       return 1;
     }
     return 0;
   }
   else {
-    remainFlag = true;
+    sensorInfo->remainFlag = true;
     return 0;
    }
 }
