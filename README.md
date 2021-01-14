@@ -1,5 +1,15 @@
 # Signal_classification
 
+# EMG Classification
+
+Code from folder :
+
+```bash
+./EMG_classification
+```
+
+Is intended to classify signal from 2 SEN0240 sensors.
+
 # Infrared Classification
 
 Code from folder :
