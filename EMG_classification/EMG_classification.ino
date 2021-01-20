@@ -26,7 +26,9 @@ struct VarEMGCount
 };
 
 //Relaxed baseline values to remove noise.
-unsigned long threshold = 4000;
+unsigned long threshold = 0;
+unsigned long calibrationStartTime = 0;
+unsigned long highestNoiseValue = 0;
 
 // Numbers of mouvement detected
 unsigned long Raise_num = 0;
@@ -73,7 +75,9 @@ void loop()
   topEnvelope = (topEnvelope > threshold) ? topEnvelope : 0;
   bottomEnvelope = (bottomEnvelope > threshold) ? bottomEnvelope : 0;
 
-
+  //Set the starting calibration time
+  if (calibrationStartTime == 0) { calibrationStartTime = millis(); };
+  
   //If calibration has been done, can start detecting mouvment
   if (threshold > 0)
   {
@@ -91,10 +95,17 @@ void loop()
     }
   }
   //If calibration has not been done, calibrate the sensor
-  else {
-    //TODO: Automatic calibration
-    Serial.println(topEnvelope);
-    Serial.println(bottomEnvelope);
+  else if ( !((millis() - calibrationStartTime) > 5000) )
+  {
+    //Save the highest value while ralaxing the muscles
+    highestNoiseValue = ( topEnvelope > highestNoiseValue ) ? topEnvelope : highestNoiseValue;
+    highestNoiseValue = ( bottomEnvelope > highestNoiseValue ) ? bottomEnvelope : highestNoiseValue;
+  }
+  else
+  {
+    //Add majoration of 10% to the threshold for safety
+    threshold = ( unsigned long ) (highestNoiseValue * 1.10) ;
+    Serial.println(threshold);
   }
   delayMicroseconds(500);
 }
