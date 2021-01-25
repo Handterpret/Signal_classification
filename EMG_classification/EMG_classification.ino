@@ -8,8 +8,8 @@
 #include "EMGFilters.h"
 
 //Sensors input pins
-#define TopSensorInputPin A1
-#define BottomSensorInputPin A2
+#define TopSensorInputPin A3
+#define BottomSensorInputPin A4
 
 //Struct use to store each previous sensor's reading.
 //Use in getEMGCount function
@@ -26,17 +26,19 @@ struct VarEMGCount
 };
 
 //Relaxed baseline values to remove noise.
-unsigned long threshold = 0;
+unsigned long thresholdTop = 0;
+unsigned long thresholdBottom = 0;
 unsigned long calibrationStartTime = 0;
-unsigned long highestNoiseValue = 0;
+unsigned long highestNoiseValueTop = 0;
+unsigned long highestNoiseValueBottom = 0;
 
 // Numbers of mouvement detected
 unsigned long Raise_num = 0;
 unsigned long Lower_num = 0;
 
 //Initialisation of the sensor's struc to keep track of previous reading
-VarEMGCount topSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 200};
-VarEMGCount bottomSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 200};
+VarEMGCount topSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 500};
+VarEMGCount bottomSensorEMGCount = {0, 0, 0, false, 0, 0, 0, 500};
 
 
 EMGFilters myFilter;
@@ -72,14 +74,14 @@ void loop()
   int bottomEnvelope = sq(bottomDataAfterFilter);
 
   //The data set below the threshold value is set to 0
-  topEnvelope = (topEnvelope > threshold) ? topEnvelope : 0;
-  bottomEnvelope = (bottomEnvelope > threshold) ? bottomEnvelope : 0;
+  topEnvelope = (topEnvelope > thresholdTop) ? topEnvelope : 0;
+  bottomEnvelope = (bottomEnvelope > thresholdBottom) ? bottomEnvelope : 0;
 
   //Set the starting calibration time
   if (calibrationStartTime == 0) { calibrationStartTime = millis(); };
   
   //If calibration has been done, can start detecting mouvment
-  if (threshold > 0)
+  if (thresholdTop > 0 && thresholdBottom > 0 )
   {
     if (getEMGCount(bottomEnvelope, &bottomSensorEMGCount))
     {
@@ -95,17 +97,33 @@ void loop()
     }
   }
   //If calibration has not been done, calibrate the sensor
-  else if ( !((millis() - calibrationStartTime) > 5000) )
+  /*else if ( (!((millis() - calibrationStartTime) > 5000)) && ((millis() - calibrationStartTime) > 1000) )
   {
     //Save the highest value while ralaxing the muscles
-    highestNoiseValue = ( topEnvelope > highestNoiseValue ) ? topEnvelope : highestNoiseValue;
-    highestNoiseValue = ( bottomEnvelope > highestNoiseValue ) ? bottomEnvelope : highestNoiseValue;
+    highestNoiseValueTop = ( topEnvelope > highestNoiseValueTop ) ? topEnvelope : highestNoiseValueTop;
+    highestNoiseValueBottom = ( bottomEnvelope > highestNoiseValueBottom ) ? bottomEnvelope : highestNoiseValueBottom;
+  }*/
+  else if ( (!((millis() - calibrationStartTime) > 6000)) && ((millis() - calibrationStartTime) > 1000) )
+  {
+    if (highestNoiseValueTop == 0) {Serial.println("Lower your hand: "); }
+    //Save the highest value while ralaxing the muscles
+    highestNoiseValueTop = ( topEnvelope > highestNoiseValueTop ) ? topEnvelope : highestNoiseValueTop;
   }
-  else
+  else if ( (!((millis() - calibrationStartTime) > 11000)) && ((millis() - calibrationStartTime) > 1000) )
+  {
+    if (highestNoiseValueBottom == 0) {Serial.println("Raise your hand: "); }
+    //Save the highest value while ralaxing the muscles
+    highestNoiseValueBottom = ( bottomEnvelope > highestNoiseValueBottom ) ? bottomEnvelope : highestNoiseValueBottom;
+  }
+  else if ( (millis() - calibrationStartTime) > 1000 )
   {
     //Add majoration of 10% to the threshold for safety
-    threshold = ( unsigned long ) (highestNoiseValue * 1.10) ;
-    Serial.println(threshold);
+    thresholdTop = ( unsigned long ) (highestNoiseValueTop * 1.30) ;
+    thresholdBottom = ( unsigned long ) (highestNoiseValueBottom * 1.30) ;
+    Serial.print("top: ");
+    Serial.println(thresholdTop);
+    Serial.print("botton: ");
+    Serial.println(thresholdBottom);
   }
   delayMicroseconds(500);
 }
@@ -130,11 +148,13 @@ int getEMGCount(int gforce_envelope, VarEMGCount *sensorInfo)
       sensorInfo->remainFlag = false;
       return 0;
     }
-    //If the integral value exceeds 200 ms, the integral value is clear 0,return that get EMG signal
+    //If the integral value exceeds 500 ms, the integral value is clear 0,return that get EMG signal
     if ((sensorInfo->timeMillis - sensorInfo->timeBeginzero) > sensorInfo->TimeStandard)
     {
+      long tmp = sensorInfo->integralDataEve;
       sensorInfo->integralDataEve = sensorInfo->integralData = 0;
-      return 1;
+      //return 1;
+      return tmp;
     }
     return 0;
   }
