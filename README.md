@@ -8,7 +8,7 @@ Code from folder :
 ./EMG_classification
 ```
 
-Is intended to classify signal from 2 SEN0240 sensors.
+Is a library intended to classify signal from two SEN0240 sensors.
 
 # Infrared Classification
 
