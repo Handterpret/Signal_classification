@@ -1,6 +1,6 @@
-# Signal_classification
+# Signal classification
 
-# EMG Classification
+## EMG Classification
 
 Code from folder :
 
@@ -10,21 +10,21 @@ Code from folder :
 
 Is a library intended to classify signal from two SEN0240 sensors. This library detect when the hand is raised and lowered.
 
-## Hardware needed
+### Hardware needed
 
 A [SEN0240](https://www.dfrobot.com/product-1661.html) is needed to get muscle contraction info.
 An [Arduino](https://store.arduino.cc/) (or similar) to compute data from SEN0240.
 
-## prerequisite
+### prerequisite
 
 If you are using a clone of arduino please download firmware to detect device in Arduino firmware.
 
 It should now appear fine in [Arduino IDE](https://www.arduino.cc/en/Main/OldSoftwareReleases) under **tools > port**.
-## Connection
+### Connection
 
 All connection needed to make the sensors works can be found [here](https://github.com/Handterpret/SEN0240_Demo/blob/main/README.md).
 
-## Sensors placement
+### Sensors placement
 
 The sensors should be placed like the examples below. To place the sensors precisely you can also try lowering the hand to see which muscle is activated and place the top sensor in the alignment of this muscle. Do the same for the bottom sensor.
 
@@ -32,11 +32,11 @@ Top sensor placement       |  Bottom sensor placement
 :-------------------------:|:-------------------------:
 ![](img/topSensor.png)     | ![](img/bottomSensor.png)
 
-## Calibration
+### Calibration
 
 When executing the software a calibration will be done. Follow the instruction on screen. Lower your hand two times the raise it two times when asked. This calibration is done to remove noise from neighbour muscle during the movement.
 
-# Infrared Classification
+## Infrared Classification
 
 Code from folder :
 
@@ -48,7 +48,7 @@ Is intended to classify signal from Infrared diodes and leds.
 
 Please refer to : <https://github.com/Handterpret/Infrared_Analysis>
 
-## Training
+### Training
 
 Training a model is made with file :
 
@@ -77,7 +77,7 @@ Dataset
     ...
 ```
 
-## Experience: classify lights on/off
+### Experience: classify lights on/off
 
 To do this experiment we have 3 steps to follow:
 
@@ -85,7 +85,7 @@ To do this experiment we have 3 steps to follow:
 - train a classifier on this dataset
 - check in real conditions if classifier is working well
 
-### Dataset creation
+#### Dataset creation
 
 To create the dataset we need few things :
 - Arduino board (or Movuino)
@@ -128,7 +128,7 @@ python3 .\src\Infer.py --model_path MODEL_OUTPUT_FOLDER
 
 This will take the model and read the serial port to classify in live
 
-## Bonus: convert model to TinyML to run live on arduino
+### Bonus: convert model to TinyML to run live on arduino
 
 Just run
 ```
