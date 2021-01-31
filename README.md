@@ -35,7 +35,11 @@ Top sensor placement       |  Bottom sensor placement
 ### Calibration
 
 When executing the software a calibration will be done. Follow the instruction on screen. Lower your hand two times the raise it two times when asked. This calibration is done to remove noise from neighbour muscle during the movement.
-
+The margin of the calbiration can be changed in the line below in the file `./EMG_classification/EMG_classification.cpp`. Here it is 1.30. The higher the more margin.
+```C
+thresholdTop = ( unsigned long ) (highestNoiseValueTop * 1.30) ;
+thresholdBottom = ( unsigned long ) (highestNoiseValueBottom * 1.30) ;
+```
 ## Infrared Classification
 
 Code from folder :
