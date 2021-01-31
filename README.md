@@ -8,7 +8,33 @@ Code from folder :
 ./EMG_classification
 ```
 
-Is a library intended to classify signal from two SEN0240 sensors.
+Is a library intended to classify signal from two SEN0240 sensors. This library detect when the hand is raised and lowered.
+
+## Hardware needed
+
+A [SEN0240](https://www.dfrobot.com/product-1661.html) is needed to get muscle contraction info.
+An [Arduino](https://store.arduino.cc/) (or similar) to compute data from SEN0240.
+
+## prerequisite
+
+If you are using a clone of arduino please download firmware to detect device in Arduino firmware.
+
+It should now appear fine in [Arduino IDE](https://www.arduino.cc/en/Main/OldSoftwareReleases) under **tools > port**.
+## Connection
+
+All connection needed to make the sensors works can be found [here](https://github.com/Handterpret/SEN0240_Demo/blob/main/README.md).
+
+## Sensors placement
+
+The sensors should be placed like the examples below. To place the sensors precisely you can also try lowering the hand to see which muscle is activated and place the top sensor in the alignment of this muscle. Do the same for the bottom sensor.
+
+Top sensor placement       |  Bottom sensor placement
+:-------------------------:|:-------------------------:
+![](img/topSensor.png)     | ![](img/bottomSensor.png)
+
+## Calibration
+
+When executing the software a calibration will be done. Follow the instruction on screen. Lower your hand two times the raise it two times when asked. This calibration is done to remove noise from neighbour muscle during the movement.
 
 # Infrared Classification
 
